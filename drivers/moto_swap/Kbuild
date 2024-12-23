@@ -1,21 +1,30 @@
-HAVE_KERNEL_5_4 = $(shell test -d $(ANDROID_BUILD_TOP)/kernel/msm-5.4 && echo 1)
-HAVE_KERNEL_5_15 = $(shell test -d $(ANDROID_BUILD_TOP)/kernel_platform/gki/kernel/5.15 && echo 1)
-HAVE_KERNEL_6_1 = $(shell test -d $(ANDROID_BUILD_TOP)/kernel_platform/gki/kernel/6.1 && echo 1)
+KERNEL_CFLAGS += CONFIG_HYBRIDSWAP_ZRAM=y
+KERNEL_CFLAGS += CONFIG_HYBRIDSWAP=y
+KERNEL_CFLAGS += CONFIG_HYBRIDSWAP_SWAPD=y
+KERNEL_CFLAGS += CONFIG_HYBRIDSWAP_CORE=y
 
-ifeq ($(HAVE_KERNEL_5_4),1)
+KBUILD_OPTIONS += CONFIG_HYBRIDSWAP_ZRAM=y
+KBUILD_OPTIONS += CONFIG_HYBRIDSWAP=y
+KBUILD_OPTIONS += CONFIG_HYBRIDSWAP_SWAPD=y
+KBUILD_OPTIONS += CONFIG_HYBRIDSWAP_CORE=y
+
+ifeq ($(VERSION),5)
+ifeq ($(PATCHLEVEL),4)
 ZRAM_SRC = zram-5.4
 EXTRA_CFLAGS += -DCONFIG_ZRAM_5_4
-else ifeq ($(HAVE_KERNEL_5_15),1)
+else ifeq ($(PATCHLEVEL),15)
 ZRAM_SRC = zram-5.15
 EXTRA_CFLAGS += -DCONFIG_ZRAM_5_15
-else ifeq ($(HAVE_KERNEL_6_1),1)
-ZRAM_SRC = zram-6.1
-EXTRA_CFLAGS += -DCONFIG_ZRAM_6_1
-EXTRA_CFLAGS += -Wframe-larger-than=4096
 else
 ZRAM_SRC = zram-5.10
 EXTRA_CFLAGS += -DCONFIG_ZRAM_5_10
 endif
+else
+ZRAM_SRC = zram-6.1
+EXTRA_CFLAGS += -DCONFIG_ZRAM_6_1
+EXTRA_CFLAGS += -Wframe-larger-than=4096
+endif
+
 
 # add -Wall to try to catch everything we can.
 EXTRA_CFLAGS += -Wall
